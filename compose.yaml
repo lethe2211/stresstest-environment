@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  master:
+    image: locustio/locust
+    ports:
+     - "8089:8089"
+    volumes:
+      - ./:/mnt/locust
+      - ./output:/mnt/locust/output
+    command: -f /mnt/locust/scenario/${SCENARIO:-sample}/locustfile.py --headless --master -H http://master:8089 --host=${TARGET_HOST:-http://localhost:8080} --users=${USERS:-1} --spawn-rate=${SPAWN_RATE:-1} --run-time=${RUN_TIME:-1m} --csv=/mnt/locust/output/stats_${SCENARIO} --csv-full-history
+  
+  worker:
+    image: locustio/locust
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/scenario/${SCENARIO:-sample}/locustfile.py --worker --master-host master
